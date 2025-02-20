@@ -83,7 +83,7 @@ var aasLocalizations = {
 };
 
 Aspectize.Extend("DateTimePicker", {
-    Properties: { Value: null, MinDate: new Date(0), MaxDate: new Date(0), Stepping: 1, Format: '', Inline: false, ViewMode: 'calendar', UseCurrent: true, SideBySide: false, DefaultDate: new Date(0), Locale: 'fr', Debug: false, DisableWeekEnds:false },
+    Properties: { Value: null, MinDate: new Date(0), MaxDate: new Date(0), Stepping: 1, Format: '', Inline: false, ViewMode: 'calendar', UseCurrent: true, SideBySide: false, DefaultDate: new Date(0), Locale: 'fr', Debug: false, DisableWeekEnds: false, Container: false },
     Events: ['OnValueChanged'],
     Init: function (elem) {
 
@@ -100,6 +100,17 @@ Aspectize.Extend("DateTimePicker", {
             };
 
             if (arg) {
+
+
+                if ('Container' in arg) {
+
+                    if (arg.Container) {
+                        dtPicker.updateOptions({
+                            container: dtInput.parentElement
+                        }, false);
+                    }
+                }
+                
 
                 if ('UseCurrent' in arg) {
                     dtPicker.updateOptions({
@@ -228,6 +239,7 @@ Aspectize.Extend("DateTimePicker", {
                 var sideBySide = !!Aspectize.UiExtensions.GetProperty(elem, 'SideBySide');
                 var viewMode = Aspectize.UiExtensions.GetProperty(elem, 'ViewMode') || 'calendar';   // 'clock' | 'calendar' | 'months' | 'years' | 'decades'
                 var inline = !!Aspectize.UiExtensions.GetProperty(elem, 'Inline');
+                var container = !!Aspectize.UiExtensions.GetProperty(elem, 'Container');
 
                 var locale = Aspectize.UiExtensions.GetProperty(elem, 'Locale') || Aspectize.CultureInfo.GetCurrentLanguageAndRegion();
                 var format = Aspectize.UiExtensions.GetProperty(elem, 'Format') || Aspectize.CultureInfo.GetRegionInfo().dateFormat;
@@ -238,6 +250,9 @@ Aspectize.Extend("DateTimePicker", {
 
                 options.restrictions.minDate = minDate.valueOf() === 0 ? undefined : minDate;
                 options.restrictions.maxDate = maxDate.valueOf() === 0 ? undefined : maxDate;
+
+                if (container) options.container = dtInput.parentElement;
+
 
                 options.debug = debug;
                 options.keepInvalid = true;
@@ -264,7 +279,7 @@ Aspectize.Extend("DateTimePicker", {
                 var hourCycle = fr ? 'h23' : undefined; // 'h11' | 'h12' | 'h23' | 'h24' 
                 var startOfTheWeek = fr ? 1 : 0; // 1 = Monday
 
-                options.localization = { locale: locale, format: format, hourCycle: hourCycle, startOfTheWeek, startOfTheWeek };
+                options.localization = { locale: locale, format: format, hourCycle: hourCycle, startOfTheWeek: startOfTheWeek };
 
                 return options;
             }
@@ -300,7 +315,7 @@ Aspectize.Extend("DateTimePicker", {
 
                     var value = null;
                     if (e.date) {
-                        value = e.date;              
+                        value = e.date;
                     }
                     var format = Aspectize.UiExtensions.GetProperty(elem, 'Format');
 
@@ -312,7 +327,7 @@ Aspectize.Extend("DateTimePicker", {
 
             dtPicker.subscribe(tempusDominus.Namespace.events.error, function (e) {
 
-                dtInput.title = e.reason;                
+                dtInput.title = e.reason;
             });
 
             dtPicker.dates.formatInput = function (dateValue) {
